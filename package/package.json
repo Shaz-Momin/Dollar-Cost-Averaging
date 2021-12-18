@@ -1,0 +1,31 @@
+{
+  "name": "analyze-dca",
+  "version": "1.0.0",
+  "description": "Analyzes past stock values using dollar cost averaging investment strategy",
+  "main": "index.js",
+  "scripts": {
+    "test": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Shaz-Momin/Dollar-Cost-Averaging.git"
+  },
+  "keywords": [
+    "Dollar-Cost-Averaging",
+    "Stocks",
+    "Investment"
+  ],
+  "author": "Shaz Momin",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Shaz-Momin/Dollar-Cost-Averaging/issues"
+  },
+  "homepage": "https://github.com/Shaz-Momin/Dollar-Cost-Averaging#readme",
+  "dependencies": {
+    "typescript": "^4.5.4",
+    "yahoo-finance": "^0.3.7"
+  },
+  "devDependencies": {
+    "@types/node": "^17.0.0"
+  }
+}
