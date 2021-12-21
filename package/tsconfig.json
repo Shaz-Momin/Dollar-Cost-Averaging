@@ -1,6 +1,6 @@
 {
     "compilerOptions": {
-        "target": "ES3",
+        "target": "es2021",
         "watch": true,
         "lib": ["dom", "ES2021"]
     }
