@@ -15,13 +15,14 @@ function analyze_dca(req) {
         from: endpoints.start.toISOString().substring(0, 10),
         to: endpoints.end.toISOString().substring(0, 10)
     }).then(function (quotes) {
-        if (quotes.length == 0) {
+        if (quotes.length == 0) { // Handle error state
             return "No Data, Invalid input parameters (ERROR)";
         }
-        var sharesOwnedWithDirect = getSharesOwnedDirect(req.amountInvested, quotes[quotes.length - 1].open);
+        // quotes contains all requested shares data
         var amtPerPeriod = req.amountInvested / req.numPeriods; // for Dollar Cost Averaging strategy
         var sharesData = [];
         var sharesOwnedWithDCA = getSharesOwnedDCA(quotes, amtPerPeriod, req.period, req.numPeriods, sharesData);
+        var sharesOwnedWithDirect = getSharesOwnedDirect(req.amountInvested, sharesData[sharesData.length - 1].open);
         var conclusion = {
             sharesOwnedWithDCA: sharesOwnedWithDCA,
             sharesOwnedWithDirect: sharesOwnedWithDirect,
@@ -38,7 +39,6 @@ function analyze_dca(req) {
 // Returns the start time (ISO) when stocks are first purchased
 function getDatePoints(period, numPeriods, curr) {
     var start = new Date();
-    start.setDate(start.getDate() - 1);
     switch (period) {
         /* case 'd': // start.setDate(curr.getDate() - numPeriods);
             var temp = new Date(curr);
@@ -52,7 +52,7 @@ function getDatePoints(period, numPeriods, curr) {
             start.setDate(temp.getDate());
             break; */
         case 'w':
-            start.setDate(curr.getDate() - ((numPeriods - 1) * 7));
+            start.setDate(curr.getDate() - (numPeriods * 7));
             start.setDate(start.getDate() - 1);
             break;
         case 'm':
@@ -64,6 +64,10 @@ function getDatePoints(period, numPeriods, curr) {
             start.setDate(start.getDate() - 1);
             break;
     }
+    // Adjust for startDate that falls on a weekend to the last time market was open
+    if ([6, 7].includes(start.getDay())) {
+        start.setDate(start.getDate() - (start.getDay() - 5));
+    }
     return start;
 }
 // Calculate the number of shares owned by buying every period
@@ -73,13 +77,13 @@ function getSharesOwnedDCA(quotes, amount, period, numPeriods, sharesData) {
     var weekOffset = 5;
     var monthOffset = 23;
     var yearOffset = 257;
-    var tempDate = new Date();
-    tempDate.setDate(tempDate.getDate() - 1); // starting backwards from yesterday
+    var tempDate = new Date(quotes[0].date); // starting backwards from current date (in terms of market days)
     // Buy shares with a set amount every period
     for (var i = 0; i < quotes.length;) {
-        // array access, should mostly be constant O(#) time
         var j = i;
-        while (quotes[j].date.toISOString().substring(0, 10) != tempDate.toISOString().substring(0, 10)) {
+        // array access, should mostly be constant O(#) time
+        while (Date.parse(quotes[j].date) < Date.parse(tempDate.toISOString())) {
+            //console.log(quotes[j].date.toISOString());
             j--;
         }
         // Calculate # of stocks you can buy with the amount & add it to the cumulative sum
@@ -91,7 +95,7 @@ function getSharesOwnedDCA(quotes, amount, period, numPeriods, sharesData) {
             close: quotes[j].close,
             high: quotes[j].high,
             low: quotes[j].low,
-            symbol: quotes[i].symbol
+            symbol: quotes[j].symbol
         });
         // Update tempDate for next iteration
         switch (period) {
@@ -101,18 +105,19 @@ function getSharesOwnedDCA(quotes, amount, period, numPeriods, sharesData) {
                 break;
             case 'm':
                 i += monthOffset;
-                tempDate.setDate(tempDate.getMonth() - 1);
+                tempDate.setMonth(tempDate.getMonth() - 1);
                 break;
             case 'y':
                 i += yearOffset;
-                tempDate.setDate(tempDate.getFullYear() - 1);
+                tempDate.setFullYear(tempDate.getFullYear() - 1);
                 break;
         }
     }
     // For any extra leftover date missed out due to miscalculations
     if (sharesData.length != numPeriods) {
         var k = quotes.length - 1;
-        while (quotes[k].date.toISOString().substring(0, 10) != tempDate.toISOString().substring(0, 10)) {
+        console.log("leftover date data: " + new Date(quotes[k].date).toISOString());
+        while (Date.parse(quotes[k].date) < Date.parse(tempDate.toISOString())) {
             k--;
         }
         totalSharesBought += getSharesOwnedDirect(amount, quotes[j].open); // for cumulative sum
