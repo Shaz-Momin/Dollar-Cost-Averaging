@@ -104,6 +104,8 @@ function getDatePoints(period: Period, numPeriods: number, curr: Date) {
             start.setFullYear(curr.getFullYear() - (numPeriods - 1));
             start.setDate(start.getDate() - 1);
             break;
+        default:
+            Promise.reject(new Error("Invalid period parameter"))
     }
 
     // Adjust for startDate that falls on a weekend to the last time market was open
