@@ -7,8 +7,8 @@ var startTime = performance.now() // for measuing how long it took to execute th
 let result = analyze_dca({
     amountInvested: 3000,
     stockSymbol: 'TSLA',
-    period: 'm',
-    numPeriods: 9
+    period: 'w',
+    numPeriods: 4
 });
 
 var endTime = performance.now()

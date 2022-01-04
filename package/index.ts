@@ -2,7 +2,7 @@
 var yahooFinance = require('yahoo-finance');
 
 // Special type for period (how often the user is buying the stock)
-type Period = /* 'd' |  */'w' | 'm' | 'y';
+type Period = 'd' |  'w' | 'm' | 'y';
 
 // Input argument (JSON obj) for the dollar cost averaging function
 interface dca_request {
@@ -53,6 +53,11 @@ function analyze_dca(req: dca_request) {
             return "No Data, Invalid input parameters (ERROR)";
         }
 
+        // Adjust quotes to contain equal number of data to num_periods if period == day
+        if (req.period == 'd') {
+            quotes = quotes.slice(0, req.numPeriods);
+        }
+
         // quotes contains all requested shares data
         var amtPerPeriod: number = req.amountInvested / req.numPeriods; // for Dollar Cost Averaging strategy
         var sharesData: sharesInfo[] = [];
@@ -67,9 +72,6 @@ function analyze_dca(req: dca_request) {
             sharesData: sharesData
         }
 
-        console.log("Diff in days: " + Math.round(diffInDays));
-        console.log("Actual data for days: " + quotes.length);
-
         return conclusion;
     })
 
@@ -81,17 +83,10 @@ function getDatePoints(period: Period, numPeriods: number, curr: Date) {
     var start: Date = new Date();
 
     switch (period) {
-        /* case 'd': // start.setDate(curr.getDate() - numPeriods);
-            var temp = new Date(curr);
-            for (var i = 0; i < numPeriods; i++) {
-                var day = temp.getDay();
-                if ([6,7].includes(day)) {
-                    i--;
-                }
-                temp.setDate(temp.getDate() - 1);
-            }
-            start.setDate(temp.getDate());
-            break; */
+        case 'd':
+            var actualDays = Math.ceil(numPeriods / 5) + 1
+            start.setDate(curr.getDate() - (actualDays * 7));
+            break;
         case 'w':
             start.setDate(curr.getDate() - (numPeriods * 7));
             start.setDate(start.getDate() - 1);
@@ -109,9 +104,8 @@ function getDatePoints(period: Period, numPeriods: number, curr: Date) {
     }
 
     // Adjust for startDate that falls on a weekend to the last time market was open
-    if ([6,7].includes(start.getDay())) {
-        start.setDate(start.getDate() - (start.getDay() - 5))
-    }
+    getPreviousWeekday(start);
+
     return start;
 }
 
@@ -132,7 +126,6 @@ function getSharesOwnedDCA(quotes, amount: number, period: Period, numPeriods: n
 
         // array access, should mostly be constant O(#) time
         while (Date.parse(quotes[j].date) < Date.parse(tempDate.toISOString())) {
-            //console.log(quotes[j].date.toISOString());
             j--;
         }
 
@@ -152,6 +145,12 @@ function getSharesOwnedDCA(quotes, amount: number, period: Period, numPeriods: n
 
         // Update tempDate for next iteration
         switch (period) {
+            case 'd':
+                i += 1;
+                if (i < quotes.length) {
+                    tempDate = new Date(quotes[i].date.getDate());
+                }   
+                break;
             case 'w': 
                 i += weekOffset;
                 tempDate.setDate(tempDate.getDate() - 7);
@@ -170,7 +169,7 @@ function getSharesOwnedDCA(quotes, amount: number, period: Period, numPeriods: n
     // For any extra leftover date missed out due to miscalculations
     if (sharesData.length != numPeriods) {
         var k = quotes.length - 1;
-        console.log("leftover date data: " + new Date(quotes[k].date).toISOString())
+        
         while (Date.parse(quotes[k].date) < Date.parse(tempDate.toISOString())) {
             k--;
         }
@@ -204,6 +203,13 @@ function getGainOrLoss(amount: number, currPrice: number, shares: number) {
 function getNextWeekday(date: Date) {
     if ([6, 7].includes(date.getDay())) {
         date.setDate(date.getDate() + (8 - date.getDay()));
+    }
+}
+
+// Adjust the date to the previous weekday if this date is a weekend
+function getPreviousWeekday(date: Date) {
+    if ([6, 7].includes(date.getDay())) {
+        date.setDate(date.getDate() - (date.getDay() - 5));
     }
 }
 

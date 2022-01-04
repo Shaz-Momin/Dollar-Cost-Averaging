@@ -1,0 +1,84 @@
+# Dollar-Cost-Averaging
+
+```analyze-dca``` is a simple node package that analyzes past stock values and concludes gains/loses based on practicing the ***Dollar Cost Averaging*** investment strategy over a set period of time.
+
+Check out more elaborate explanation about [***Dollar Cost Averaing***](https://www.investopedia.com/terms/d/dollarcostaveraging.asp) for a better understanding of how this module works referenced briefly below.
+
+# How it works
+> More info coming soon!
+
+# Installation
+```
+$ npm install --save analyze-dca
+```
+
+# Usage
+```
+var analyze_dca = require('analyze-dca')
+
+analyze_dca({
+    amountInvested: 5000, // Amount to be invested
+    stockSymbol: 'TSLA',
+    period: 'w', // 'd' (daily) / 'w' (weekly) / 'm' (monthly) / 'y' (yearly)
+    numPeriods: 4 // # of periods the stock is bought for DCA
+}).then((data) => {
+    console.log(data)
+    /*
+        {
+            sharesOwnedWithDCA: 2.9247167245086256,
+            sharesOwnedWithDirect: 2.996733479595437,
+            directProfit: 439.50,
+            dcaProfit: 356.84,
+            sharesData: [
+                {
+                    date: 2022-01-03T05:00:00.000Z,
+                    open: 1147.75,
+                    close: 1199.780029,
+                    high: 1201.069946,
+                    low: 1136.040039,
+                    symbol: 'TSLA'
+                },
+                {
+                    date: 2021-12-27T05:00:00.000Z,
+                    open: 1073.670044,
+                    close: 1093.939941,
+                    high: 1117,
+                    low: 1070.719971,
+                    symbol: 'TSLA'
+                },
+                {
+                    date: 2021-12-20T05:00:00.000Z,
+                    open: 910.700012,
+                    close: 899.940002,
+                    high: 921.690002,
+                    low: 893.390015,
+                    symbol: 'TSLA'
+                },
+                {
+                    date: 2021-12-13T05:00:00.000Z,
+                    open: 1001.090027,
+                    close: 966.409973,
+                    high: 1005,
+                    low: 951.419983,
+                    symbol: 'TSLA'
+                }
+            ]
+        }
+    */
+}).catch((error) => {
+    console.log(error)
+})
+
+```
+
+All dates are in ISO format. All numerical values are returned with max decimal places available. Round accordingly.
+
+# License
+
+ISC License
+
+Copyright (c) [2022] [Shaz Momin]
+
+Permission to use, copy, modify, and/or distribute this software for any purpose with or without fee is hereby granted, provided that the above copyright notice and this permission notice appear in all copies.
+
+THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
