@@ -4,4 +4,4 @@
 
 ## More Info on Usage/Installation
 
-Check out [analyze-dca]() npm page for this node module
+Check out [analyze-dca](https://www.npmjs.com/package/analyze-dca) npm page for this node module
