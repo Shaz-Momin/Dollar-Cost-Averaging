@@ -1,19 +1,36 @@
 # Dollar-Cost-Averaging
 
-```analyze-dca``` is a simple node package that analyzes past stock values and concludes gains/loses based on practicing the ***Dollar Cost Averaging*** investment strategy over a set period of time.
+```analyze-dca``` is a simple node package that analyzes past stock values and concludes gains/loses based on practicing the ***Dollar Cost Averaging*** investment strategy over a set trading period.
 
-Check out more elaborate explanation about [***Dollar Cost Averaing***](https://www.investopedia.com/terms/d/dollarcostaveraging.asp) for a better understanding of how this module works referenced briefly below.
+Check out more elaborate explanation about [Dollar Cost Averaging](https://www.investopedia.com/terms/d/dollarcostaveraging.asp) for a better understanding of how this module works referenced briefly below.
 
 # How it works
-> More info coming soon!
+```analyze-dca``` function takes a JSON object as an input parameter, dca-request (see typescript code block below).
+```typescript
+type Period = 'd' | 'w' | 'm' | 'y';
+
+interface dca_request {
+    amountInvested: number // amount that the user was looking forward to invest
+	stockSymbol: string // TSLA, AMZN, GOOGL, AAPL
+	period: Period // daily / weekly /monthly /yearly
+	numPeriods: number // how many periods, past # days/weeks/months/years
+}
+```
+
+The ```amountInvested``` is divided equally into ```numPeriods``` parts which is invested on a regular ```period``` resulting in a cumulative sum of the number of shares that are bought based on the historical (open) share price on those days. Through this, the amount invested every ```period``` remains constant while the number of shares bought on recurring periods fluctuates based on market volatility.
+
+After calculating such for every trading period, the total number of shares bought through DCA is compared against buying shares with the whole amount at the price ```numPeriods``` days/weeks/months/years ago. Monetary profits/loses are based on the share price of the most recent trading period.
+
+Check out a sample result object shown in the comment under [usage](#usage) section.
+
 
 # Installation
-```
+```javascript
 $ npm install --save analyze-dca
 ```
 
 # Usage
-```
+```javascript
 var analyze_dca = require('analyze-dca')
 
 analyze_dca({
@@ -71,7 +88,7 @@ analyze_dca({
 
 ```
 
-All dates are in ISO format. All numerical values are returned with max decimal places available. Round accordingly.
+All dates are in ISO format. All numerical values are returned with max precision available. Round accordingly.
 
 # License
 

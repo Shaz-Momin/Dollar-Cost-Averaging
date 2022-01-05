@@ -6,10 +6,10 @@ type Period = 'd' |  'w' | 'm' | 'y';
 
 // Input argument (JSON obj) for the dollar cost averaging function
 interface dca_request {
-    amountInvested: number; // amount that the user was looking forward to invest
-	stockSymbol: string; // TSLA, AMZN, GOOGL
-	period: Period; // day/week/month/year
-	numPeriods: number; // how many periods, past # days/weeks/months/years
+    amountInvested: number // amount that the user was looking forward to invest
+	stockSymbol: string // TSLA, AMZN, GOOGL
+	period: Period // day/week/month/year
+	numPeriods: number // how many periods, past # days/weeks/months/years
 }
 
 // Main JSON output format

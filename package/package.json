@@ -1,6 +1,6 @@
 {
   "name": "analyze-dca",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Analyzes past stock values using dollar cost averaging investment strategy",
   "main": "index.js",
   "scripts": {
